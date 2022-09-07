@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\CsvImportTrait;
 use App\Http\Controllers\Traits\MediaUploadingTrait;
 use App\Http\Requests\MassDestroyLessonRequest;
 use App\Http\Requests\StoreLessonRequest;
@@ -13,18 +14,85 @@ use Gate;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
+use Yajra\DataTables\Facades\DataTables;
 
 class LessonsController extends Controller
 {
     use MediaUploadingTrait;
+    use CsvImportTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         abort_if(Gate::denies('lesson_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $lessons = Lesson::with(['course', 'media'])->get();
+        if ($request->ajax()) {
+            $query = Lesson::with(['course'])->select(sprintf('%s.*', (new Lesson())->table));
+            $table = Datatables::of($query);
 
-        return view('admin.lessons.index', compact('lessons'));
+            $table->addColumn('placeholder', '&nbsp;');
+            $table->addColumn('actions', '&nbsp;');
+
+            $table->editColumn('actions', function ($row) {
+                $viewGate = 'lesson_show';
+                $editGate = 'lesson_edit';
+                $deleteGate = 'lesson_delete';
+                $crudRoutePart = 'lessons';
+
+                return view('partials.datatablesActions', compact(
+                'viewGate',
+                'editGate',
+                'deleteGate',
+                'crudRoutePart',
+                'row'
+            ));
+            });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : '';
+            });
+            $table->addColumn('course_title', function ($row) {
+                return $row->course ? $row->course->title : '';
+            });
+
+            $table->editColumn('title', function ($row) {
+                return $row->title ? $row->title : '';
+            });
+            $table->editColumn('thumbnail', function ($row) {
+                if (!$row->thumbnail) {
+                    return '';
+                }
+                $links = [];
+                foreach ($row->thumbnail as $media) {
+                    $links[] = '<a href="' . $media->getUrl() . '" target="_blank"><img src="' . $media->getUrl('thumb') . '" width="50px" height="50px"></a>';
+                }
+
+                return implode(' ', $links);
+            });
+            $table->editColumn('short_text', function ($row) {
+                return $row->short_text ? $row->short_text : '';
+            });
+            $table->editColumn('long_text', function ($row) {
+                return $row->long_text ? $row->long_text : '';
+            });
+            $table->editColumn('video', function ($row) {
+                return $row->video ? '<a href="' . $row->video->getUrl() . '" target="_blank">' . trans('global.downloadFile') . '</a>' : '';
+            });
+            $table->editColumn('position', function ($row) {
+                return $row->position ? $row->position : '';
+            });
+            $table->editColumn('is_published', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->is_published ? 'checked' : null) . '>';
+            });
+            $table->editColumn('is_free', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->is_free ? 'checked' : null) . '>';
+            });
+
+            $table->rawColumns(['actions', 'placeholder', 'course', 'thumbnail', 'video', 'is_published', 'is_free']);
+
+            return $table->make(true);
+        }
+
+        return view('admin.lessons.index');
     }
 
     public function create()

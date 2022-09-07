@@ -20,7 +20,6 @@ class OnBoarding extends Model implements HasMedia
 
     protected $appends = [
         'image',
-        'icon',
     ];
 
     protected $dates = [
@@ -32,7 +31,6 @@ class OnBoarding extends Model implements HasMedia
     protected $fillable = [
         'title',
         'description',
-        'spotlight',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -47,18 +45,6 @@ class OnBoarding extends Model implements HasMedia
     public function getImageAttribute()
     {
         $file = $this->getMedia('image')->last();
-        if ($file) {
-            $file->url       = $file->getUrl();
-            $file->thumbnail = $file->getUrl('thumb');
-            $file->preview   = $file->getUrl('preview');
-        }
-
-        return $file;
-    }
-
-    public function getIconAttribute()
-    {
-        $file = $this->getMedia('icon')->last();
         if ($file) {
             $file->url       = $file->getUrl();
             $file->thumbnail = $file->getUrl('thumb');

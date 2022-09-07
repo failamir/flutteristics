@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\CsvImportTrait;
 use App\Http\Requests\MassDestroyTestResultRequest;
 use App\Http\Requests\StoreTestResultRequest;
 use App\Http\Requests\UpdateTestResultRequest;
@@ -12,16 +13,59 @@ use App\Models\User;
 use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Yajra\DataTables\Facades\DataTables;
 
 class TestResultsController extends Controller
 {
-    public function index()
+    use CsvImportTrait;
+
+    public function index(Request $request)
     {
         abort_if(Gate::denies('test_result_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $testResults = TestResult::with(['test', 'student'])->get();
+        if ($request->ajax()) {
+            $query = TestResult::with(['test', 'student'])->select(sprintf('%s.*', (new TestResult())->table));
+            $table = Datatables::of($query);
 
-        return view('admin.testResults.index', compact('testResults'));
+            $table->addColumn('placeholder', '&nbsp;');
+            $table->addColumn('actions', '&nbsp;');
+
+            $table->editColumn('actions', function ($row) {
+                $viewGate = 'test_result_show';
+                $editGate = 'test_result_edit';
+                $deleteGate = 'test_result_delete';
+                $crudRoutePart = 'test-results';
+
+                return view('partials.datatablesActions', compact(
+                'viewGate',
+                'editGate',
+                'deleteGate',
+                'crudRoutePart',
+                'row'
+            ));
+            });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : '';
+            });
+            $table->addColumn('test_title', function ($row) {
+                return $row->test ? $row->test->title : '';
+            });
+
+            $table->addColumn('student_name', function ($row) {
+                return $row->student ? $row->student->name : '';
+            });
+
+            $table->editColumn('score', function ($row) {
+                return $row->score ? $row->score : '';
+            });
+
+            $table->rawColumns(['actions', 'placeholder', 'test', 'student']);
+
+            return $table->make(true);
+        }
+
+        return view('admin.testResults.index');
     }
 
     public function create()

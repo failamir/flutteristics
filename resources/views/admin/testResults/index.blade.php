@@ -6,6 +6,10 @@
             <a class="btn btn-success" href="{{ route('admin.test-results.create') }}">
                 {{ trans('global.add') }} {{ trans('cruds.testResult.title_singular') }}
             </a>
+            <button class="btn btn-warning" data-toggle="modal" data-target="#csvImportModal">
+                {{ trans('global.app_csvImport') }}
+            </button>
+            @include('csvImport.modal', ['model' => 'TestResult', 'route' => 'admin.test-results.parseCsvImport'])
         </div>
     </div>
 @endcan
@@ -15,76 +19,30 @@
     </div>
 
     <div class="card-body">
-        <div class="table-responsive">
-            <table class=" table table-bordered table-striped table-hover datatable datatable-TestResult">
-                <thead>
-                    <tr>
-                        <th width="10">
+        <table class=" table table-bordered table-striped table-hover ajaxTable datatable datatable-TestResult">
+            <thead>
+                <tr>
+                    <th width="10">
 
-                        </th>
-                        <th>
-                            {{ trans('cruds.testResult.fields.id') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.testResult.fields.test') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.testResult.fields.student') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.testResult.fields.score') }}
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($testResults as $key => $testResult)
-                        <tr data-entry-id="{{ $testResult->id }}">
-                            <td>
-
-                            </td>
-                            <td>
-                                {{ $testResult->id ?? '' }}
-                            </td>
-                            <td>
-                                {{ $testResult->test->title ?? '' }}
-                            </td>
-                            <td>
-                                {{ $testResult->student->name ?? '' }}
-                            </td>
-                            <td>
-                                {{ $testResult->score ?? '' }}
-                            </td>
-                            <td>
-                                @can('test_result_show')
-                                    <a class="btn btn-xs btn-primary" href="{{ route('admin.test-results.show', $testResult->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-                                @endcan
-
-                                @can('test_result_edit')
-                                    <a class="btn btn-xs btn-info" href="{{ route('admin.test-results.edit', $testResult->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
-                                @endcan
-
-                                @can('test_result_delete')
-                                    <form action="{{ route('admin.test-results.destroy', $testResult->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
-                                    </form>
-                                @endcan
-
-                            </td>
-
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                    </th>
+                    <th>
+                        {{ trans('cruds.testResult.fields.id') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.testResult.fields.test') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.testResult.fields.student') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.testResult.fields.score') }}
+                    </th>
+                    <th>
+                        &nbsp;
+                    </th>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
 
@@ -97,14 +55,14 @@
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
 @can('test_result_delete')
-  let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
+  let deleteButtonTrans = '{{ trans('global.datatables.delete') }}';
   let deleteButton = {
     text: deleteButtonTrans,
     url: "{{ route('admin.test-results.massDestroy') }}",
     className: 'btn-danger',
     action: function (e, dt, node, config) {
-      var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {
-          return $(entry).data('entry-id')
+      var ids = $.map(dt.rows({ selected: true }).data(), function (entry) {
+          return entry.id
       });
 
       if (ids.length === 0) {
@@ -126,18 +84,32 @@
   dtButtons.push(deleteButton)
 @endcan
 
-  $.extend(true, $.fn.dataTable.defaults, {
+  let dtOverrideGlobals = {
+    buttons: dtButtons,
+    processing: true,
+    serverSide: true,
+    retrieve: true,
+    aaSorting: [],
+    ajax: "{{ route('admin.test-results.index') }}",
+    columns: [
+      { data: 'placeholder', name: 'placeholder' },
+{ data: 'id', name: 'id' },
+{ data: 'test_title', name: 'test.title' },
+{ data: 'student_name', name: 'student.name' },
+{ data: 'score', name: 'score' },
+{ data: 'actions', name: '{{ trans('global.actions') }}' }
+    ],
     orderCellsTop: true,
     order: [[ 1, 'desc' ]],
     pageLength: 100,
-  });
-  let table = $('.datatable-TestResult:not(.ajaxTable)').DataTable({ buttons: dtButtons })
+  };
+  let table = $('.datatable-TestResult').DataTable(dtOverrideGlobals);
   $('a[data-toggle="tab"]').on('shown.bs.tab click', function(e){
       $($.fn.dataTable.tables(true)).DataTable()
           .columns.adjust();
   });
   
-})
+});
 
 </script>
 @endsection

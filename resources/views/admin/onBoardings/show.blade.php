@@ -51,26 +51,6 @@
                             @endif
                         </td>
                     </tr>
-                    <tr>
-                        <th>
-                            {{ trans('cruds.onBoarding.fields.icon') }}
-                        </th>
-                        <td>
-                            @if($onBoarding->icon)
-                                <a href="{{ $onBoarding->icon->getUrl() }}" target="_blank" style="display: inline-block">
-                                    <img src="{{ $onBoarding->icon->getUrl('thumb') }}">
-                                </a>
-                            @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            {{ trans('cruds.onBoarding.fields.spotlight') }}
-                        </th>
-                        <td>
-                            {!! $onBoarding->spotlight !!}
-                        </td>
-                    </tr>
                 </tbody>
             </table>
             <div class="form-group">

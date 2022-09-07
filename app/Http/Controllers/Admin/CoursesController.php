@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\CsvImportTrait;
 use App\Http\Controllers\Traits\MediaUploadingTrait;
 use App\Http\Requests\MassDestroyCourseRequest;
 use App\Http\Requests\StoreCourseRequest;
@@ -13,18 +14,84 @@ use Gate;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
+use Yajra\DataTables\Facades\DataTables;
 
 class CoursesController extends Controller
 {
     use MediaUploadingTrait;
+    use CsvImportTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         abort_if(Gate::denies('course_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $courses = Course::with(['teacher', 'students', 'media'])->get();
+        if ($request->ajax()) {
+            $query = Course::with(['teacher', 'students'])->select(sprintf('%s.*', (new Course())->table));
+            $table = Datatables::of($query);
 
-        return view('admin.courses.index', compact('courses'));
+            $table->addColumn('placeholder', '&nbsp;');
+            $table->addColumn('actions', '&nbsp;');
+
+            $table->editColumn('actions', function ($row) {
+                $viewGate = 'course_show';
+                $editGate = 'course_edit';
+                $deleteGate = 'course_delete';
+                $crudRoutePart = 'courses';
+
+                return view('partials.datatablesActions', compact(
+                'viewGate',
+                'editGate',
+                'deleteGate',
+                'crudRoutePart',
+                'row'
+            ));
+            });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : '';
+            });
+            $table->addColumn('teacher_name', function ($row) {
+                return $row->teacher ? $row->teacher->name : '';
+            });
+
+            $table->editColumn('title', function ($row) {
+                return $row->title ? $row->title : '';
+            });
+            $table->editColumn('description', function ($row) {
+                return $row->description ? $row->description : '';
+            });
+            $table->editColumn('price', function ($row) {
+                return $row->price ? $row->price : '';
+            });
+            $table->editColumn('thumbnail', function ($row) {
+                if (!$row->thumbnail) {
+                    return '';
+                }
+                $links = [];
+                foreach ($row->thumbnail as $media) {
+                    $links[] = '<a href="' . $media->getUrl() . '" target="_blank"><img src="' . $media->getUrl('thumb') . '" width="50px" height="50px"></a>';
+                }
+
+                return implode(' ', $links);
+            });
+            $table->editColumn('is_published', function ($row) {
+                return '<input type="checkbox" disabled ' . ($row->is_published ? 'checked' : null) . '>';
+            });
+            $table->editColumn('students', function ($row) {
+                $labels = [];
+                foreach ($row->students as $student) {
+                    $labels[] = sprintf('<span class="label label-info label-many">%s</span>', $student->name);
+                }
+
+                return implode(' ', $labels);
+            });
+
+            $table->rawColumns(['actions', 'placeholder', 'teacher', 'thumbnail', 'is_published', 'students']);
+
+            return $table->make(true);
+        }
+
+        return view('admin.courses.index');
     }
 
     public function create()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\CsvImportTrait;
 use App\Http\Controllers\Traits\MediaUploadingTrait;
 use App\Http\Requests\MassDestroyQuestionRequest;
 use App\Http\Requests\StoreQuestionRequest;
@@ -13,18 +14,70 @@ use Gate;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
+use Yajra\DataTables\Facades\DataTables;
 
 class QuestionsController extends Controller
 {
     use MediaUploadingTrait;
+    use CsvImportTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         abort_if(Gate::denies('question_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $questions = Question::with(['test', 'media'])->get();
+        if ($request->ajax()) {
+            $query = Question::with(['test'])->select(sprintf('%s.*', (new Question())->table));
+            $table = Datatables::of($query);
 
-        return view('admin.questions.index', compact('questions'));
+            $table->addColumn('placeholder', '&nbsp;');
+            $table->addColumn('actions', '&nbsp;');
+
+            $table->editColumn('actions', function ($row) {
+                $viewGate = 'question_show';
+                $editGate = 'question_edit';
+                $deleteGate = 'question_delete';
+                $crudRoutePart = 'questions';
+
+                return view('partials.datatablesActions', compact(
+                'viewGate',
+                'editGate',
+                'deleteGate',
+                'crudRoutePart',
+                'row'
+            ));
+            });
+
+            $table->editColumn('id', function ($row) {
+                return $row->id ? $row->id : '';
+            });
+            $table->addColumn('test_title', function ($row) {
+                return $row->test ? $row->test->title : '';
+            });
+
+            $table->editColumn('question_text', function ($row) {
+                return $row->question_text ? $row->question_text : '';
+            });
+            $table->editColumn('question_image', function ($row) {
+                if ($photo = $row->question_image) {
+                    return sprintf(
+        '<a href="%s" target="_blank"><img src="%s" width="50px" height="50px"></a>',
+        $photo->url,
+        $photo->thumbnail
+    );
+                }
+
+                return '';
+            });
+            $table->editColumn('points', function ($row) {
+                return $row->points ? $row->points : '';
+            });
+
+            $table->rawColumns(['actions', 'placeholder', 'test', 'question_image']);
+
+            return $table->make(true);
+        }
+
+        return view('admin.questions.index');
     }
 
     public function create()

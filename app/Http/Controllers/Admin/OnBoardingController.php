@@ -43,10 +43,6 @@ class OnBoardingController extends Controller
             $onBoarding->addMedia(storage_path('tmp/uploads/' . basename($request->input('image'))))->toMediaCollection('image');
         }
 
-        if ($request->input('icon', false)) {
-            $onBoarding->addMedia(storage_path('tmp/uploads/' . basename($request->input('icon'))))->toMediaCollection('icon');
-        }
-
         if ($media = $request->input('ck-media', false)) {
             Media::whereIn('id', $media)->update(['model_id' => $onBoarding->id]);
         }
@@ -74,17 +70,6 @@ class OnBoardingController extends Controller
             }
         } elseif ($onBoarding->image) {
             $onBoarding->image->delete();
-        }
-
-        if ($request->input('icon', false)) {
-            if (!$onBoarding->icon || $request->input('icon') !== $onBoarding->icon->file_name) {
-                if ($onBoarding->icon) {
-                    $onBoarding->icon->delete();
-                }
-                $onBoarding->addMedia(storage_path('tmp/uploads/' . basename($request->input('icon'))))->toMediaCollection('icon');
-            }
-        } elseif ($onBoarding->icon) {
-            $onBoarding->icon->delete();
         }
 
         return redirect()->route('admin.on-boardings.index');

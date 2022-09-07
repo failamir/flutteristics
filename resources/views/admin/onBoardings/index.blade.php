@@ -36,9 +36,6 @@
                             {{ trans('cruds.onBoarding.fields.image') }}
                         </th>
                         <th>
-                            {{ trans('cruds.onBoarding.fields.icon') }}
-                        </th>
-                        <th>
                             &nbsp;
                         </th>
                     </tr>
@@ -59,13 +56,6 @@
                                 @if($onBoarding->image)
                                     <a href="{{ $onBoarding->image->getUrl() }}" target="_blank" style="display: inline-block">
                                         <img src="{{ $onBoarding->image->getUrl('thumb') }}">
-                                    </a>
-                                @endif
-                            </td>
-                            <td>
-                                @if($onBoarding->icon)
-                                    <a href="{{ $onBoarding->icon->getUrl() }}" target="_blank" style="display: inline-block">
-                                        <img src="{{ $onBoarding->icon->getUrl('thumb') }}">
                                     </a>
                                 @endif
                             </td>

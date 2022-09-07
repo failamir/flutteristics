@@ -57,16 +57,6 @@
                 </ul>
             </li>
         @endcan
-        @can('user_alert_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.user-alerts.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/user-alerts") || request()->is("admin/user-alerts/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-bell c-sidebar-nav-icon">
-
-                    </i>
-                    {{ trans('cruds.userAlert.title') }}
-                </a>
-            </li>
-        @endcan
         @can('faq_management_access')
             <li class="c-sidebar-nav-dropdown {{ request()->is("admin/faq-categories*") ? "c-show" : "" }} {{ request()->is("admin/faq-questions*") ? "c-show" : "" }}">
                 <a class="c-sidebar-nav-dropdown-toggle" href="#">
@@ -99,84 +89,118 @@
                 </ul>
             </li>
         @endcan
-        @can('course_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.courses.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/courses") || request()->is("admin/courses/*") ? "c-active" : "" }}">
+        @can('course_management_access')
+            <li class="c-sidebar-nav-dropdown {{ request()->is("admin/courses*") ? "c-show" : "" }} {{ request()->is("admin/lessons*") ? "c-show" : "" }} {{ request()->is("admin/tests*") ? "c-show" : "" }} {{ request()->is("admin/questions*") ? "c-show" : "" }} {{ request()->is("admin/question-options*") ? "c-show" : "" }} {{ request()->is("admin/test-results*") ? "c-show" : "" }} {{ request()->is("admin/test-answers*") ? "c-show" : "" }}">
+                <a class="c-sidebar-nav-dropdown-toggle" href="#">
+                    <i class="fa-fw fas fa-graduation-cap c-sidebar-nav-icon">
+
+                    </i>
+                    {{ trans('cruds.courseManagement.title') }}
+                </a>
+                <ul class="c-sidebar-nav-dropdown-items">
+                    @can('course_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.courses.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/courses") || request()->is("admin/courses/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-atlas c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.course.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                    @can('lesson_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.lessons.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/lessons") || request()->is("admin/lessons/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-coffee c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.lesson.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                    @can('test_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.tests.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/tests") || request()->is("admin/tests/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-vial c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.test.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                    @can('question_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.questions.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/questions") || request()->is("admin/questions/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-question c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.question.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                    @can('question_option_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.question-options.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/question-options") || request()->is("admin/question-options/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-filter c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.questionOption.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                    @can('test_result_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.test-results.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/test-results") || request()->is("admin/test-results/*") ? "c-active" : "" }}">
+                                <i class="fa-fw far fa-file c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.testResult.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                    @can('test_answer_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.test-answers.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/test-answers") || request()->is("admin/test-answers/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fab fa-angellist c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.testAnswer.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
+            </li>
+        @endcan
+        @can('setting_access')
+            <li class="c-sidebar-nav-dropdown {{ request()->is("admin/on-boardings*") ? "c-show" : "" }} {{ request()->is("admin/user-alerts*") ? "c-show" : "" }}">
+                <a class="c-sidebar-nav-dropdown-toggle" href="#">
                     <i class="fa-fw fas fa-cogs c-sidebar-nav-icon">
 
                     </i>
-                    {{ trans('cruds.course.title') }}
+                    {{ trans('cruds.setting.title') }}
                 </a>
-            </li>
-        @endcan
-        @can('lesson_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.lessons.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/lessons") || request()->is("admin/lessons/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-cogs c-sidebar-nav-icon">
+                <ul class="c-sidebar-nav-dropdown-items">
+                    @can('on_boarding_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.on-boardings.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/on-boardings") || request()->is("admin/on-boardings/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-play-circle c-sidebar-nav-icon">
 
-                    </i>
-                    {{ trans('cruds.lesson.title') }}
-                </a>
-            </li>
-        @endcan
-        @can('test_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.tests.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/tests") || request()->is("admin/tests/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-cogs c-sidebar-nav-icon">
+                                </i>
+                                {{ trans('cruds.onBoarding.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                    @can('user_alert_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.user-alerts.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/user-alerts") || request()->is("admin/user-alerts/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-bell c-sidebar-nav-icon">
 
-                    </i>
-                    {{ trans('cruds.test.title') }}
-                </a>
-            </li>
-        @endcan
-        @can('question_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.questions.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/questions") || request()->is("admin/questions/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-cogs c-sidebar-nav-icon">
-
-                    </i>
-                    {{ trans('cruds.question.title') }}
-                </a>
-            </li>
-        @endcan
-        @can('question_option_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.question-options.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/question-options") || request()->is("admin/question-options/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-cogs c-sidebar-nav-icon">
-
-                    </i>
-                    {{ trans('cruds.questionOption.title') }}
-                </a>
-            </li>
-        @endcan
-        @can('test_result_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.test-results.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/test-results") || request()->is("admin/test-results/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-cogs c-sidebar-nav-icon">
-
-                    </i>
-                    {{ trans('cruds.testResult.title') }}
-                </a>
-            </li>
-        @endcan
-        @can('test_answer_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.test-answers.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/test-answers") || request()->is("admin/test-answers/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-cogs c-sidebar-nav-icon">
-
-                    </i>
-                    {{ trans('cruds.testAnswer.title') }}
-                </a>
-            </li>
-        @endcan
-        @can('on_boarding_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.on-boardings.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/on-boardings") || request()->is("admin/on-boardings/*") ? "c-active" : "" }}">
-                    <i class="fa-fw fas fa-play-circle c-sidebar-nav-icon">
-
-                    </i>
-                    {{ trans('cruds.onBoarding.title') }}
-                </a>
+                                </i>
+                                {{ trans('cruds.userAlert.title') }}
+                            </a>
+                        </li>
+                    @endcan
+                </ul>
             </li>
         @endcan
         @if(file_exists(app_path('Http/Controllers/Auth/ChangePasswordController.php')))

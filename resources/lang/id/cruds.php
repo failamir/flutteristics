@@ -303,10 +303,6 @@ return [
             'description_helper' => ' ',
             'image'              => 'Image',
             'image_helper'       => ' ',
-            'icon'               => 'Icon',
-            'icon_helper'        => ' ',
-            'spotlight'          => 'Spotlight',
-            'spotlight_helper'   => ' ',
             'created_at'         => 'Created at',
             'created_at_helper'  => ' ',
             'updated_at'         => 'Updated at',
@@ -314,5 +310,13 @@ return [
             'deleted_at'         => 'Deleted at',
             'deleted_at_helper'  => ' ',
         ],
+    ],
+    'courseManagement' => [
+        'title'          => 'Course Management',
+        'title_singular' => 'Course Management',
+    ],
+    'setting' => [
+        'title'          => 'Setting',
+        'title_singular' => 'Setting',
     ],
 ];

@@ -12,7 +12,6 @@ class CreateOnBoardingsTable extends Migration
             $table->bigIncrements('id');
             $table->string('title')->nullable();
             $table->longText('description')->nullable();
-            $table->longText('spotlight')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
